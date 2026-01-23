@@ -45,6 +45,8 @@ void TelegramNotifierPlugin::upload(std::set<Metrics::Metric *> &statistics)
 {
     if (!pusher) return;
     std::vector<std::string> alerts;
+    if (alerts_count.size() == 0)
+        for (auto metric : statistics) alerts_count[metric] = 0;
     for (auto metric : statistics) {
         auto notifier = notifiers.find(metric->name);
         if (notifier == notifiers.end()) continue;
@@ -55,14 +57,14 @@ void TelegramNotifierPlugin::upload(std::set<Metrics::Metric *> &statistics)
             })) {
             continue;
         }
-        size_t& current_count = alerts_count[metric];
+        size_t &current_count = alerts_count[metric];
 
         if (check_condition(notifier->second.condition, metric->value_)) {
             current_count++;
             if (current_count == notifier->second.alert_count)
                 alerts.emplace_back(formatAlertMessage(notifier->second.alertStartMessage, metric));
         } else {
-            if (current_count)
+            if (current_count >= notifier->second.alert_count)
                 alerts.emplace_back(formatAlertMessage(notifier->second.alertStoppedMessage, metric));
             current_count = 0;
         }

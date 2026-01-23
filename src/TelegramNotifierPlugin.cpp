@@ -16,6 +16,7 @@ void TelegramNotifierPlugin::registerArgs(d3156::Args::Builder &bldr)
 }
 void TelegramNotifierPlugin::postInit()
 {
+    if (!token.empty()) return;
     pusher = std::make_unique<d3156::EasyHttpClient>(*io, "https://api.telegram.org");
     pusher->setBasePath("/bot" + token + "/sendMessage");
     pusher->setContentType("application/json");

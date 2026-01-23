@@ -8,7 +8,7 @@
 #include <set>
 #include <string>
 #include <unordered_map>
-#include <vector>
+#include <map>
 
 #define Y_TelegramNotifier "\033[33m[TelegramNotifier]\033[0m "
 #define R_TelegramNotifier "\033[31m[TelegramNotifier]\033[0m "
@@ -20,6 +20,8 @@ class TelegramNotifierPlugin final : public d3156::PluginCore::IPlugin, public M
     std::string configPath = "./configs/TelegramNotifier.json";
 
     enum class ConditionType { Greater, Less, GreaterEqual, LessEqual, Equal, Range, Error };
+
+    std::map<Metrics::Metric *, size_t> alerts_count;
 
     struct Condition {
         std::string text = "";
@@ -37,7 +39,6 @@ class TelegramNotifierPlugin final : public d3156::PluginCore::IPlugin, public M
         std::set<std::string> tags = {}; //optional
         
         /// Runtime
-        size_t current_count = 0; // Текуще количество повторов
         std::string alertStartMessage = "Alert! {metric}:{value} {tags}";  
         std::string alertStoppedMessage = "Alert stopped! {metric}:{value} {tags}";
     };

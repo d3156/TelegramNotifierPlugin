@@ -54,15 +54,16 @@ void TelegramNotifierPlugin::upload(std::set<Metrics::Metric *> &statistics)
             })) {
             continue;
         }
-        
+        size_t& current_count = alerts_count[metric];
+
         if (check_condition(notifier->second.condition, metric->value_)) {
-            notifier->second.current_count++;
-            if (notifier->second.current_count == notifier->second.alert_count)
+            current_count++;
+            if (current_count == notifier->second.alert_count)
                 alerts.emplace_back(formatAlertMessage(notifier->second.alertStartMessage, metric));
         } else {
-            if (notifier->second.current_count)
+            if (current_count)
                 alerts.emplace_back(formatAlertMessage(notifier->second.alertStoppedMessage, metric));
-            notifier->second.current_count = 0;
+            current_count = 0;
         }
     }
     for (auto &alert : alerts)

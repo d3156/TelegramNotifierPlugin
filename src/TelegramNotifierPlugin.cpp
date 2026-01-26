@@ -4,11 +4,11 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <cstddef>
 #include <filesystem>
-#include <iostream>
 #include <vector>
 #include "Metrics.hpp"
 #include <boost/json/object.hpp>
 #include <boost/json/serialize.hpp>
+#include <PluginCore/Logger/Log.hpp>
 
 void TelegramNotifierPlugin::registerArgs(d3156::Args::Builder &bldr)
 {
@@ -73,7 +73,7 @@ void TelegramNotifierPlugin::upload(std::set<Metrics::Metric *> &statistics)
     for (auto &alert : alerts)
         for (auto &chat : chatIds) {
             boost::json::object message = {{"chat_id", chat}, {"text", alert}, {"parse_mode", "HTML"}};
-            std::cout << pusher->post("", boost::json::serialize(message)) << std::endl;
+            pusher->post("", boost::json::serialize(message));
         }
 }
 
@@ -126,7 +126,7 @@ void TelegramNotifierPlugin::parseSettings()
 
             if (notify.metric.empty()) continue;
             notify.condition = parse_condition(n.second.get<std::string>("condition", ""));
-            std::cout << (int)notify.condition.type << " " << notify.condition.value << "\n";
+            LOG(5, "condition.type:" << (int)notify.condition.type << " value:" << notify.condition.value);
             if (notify.condition.type == ConditionType::Error) {
                 R_LOG(1, " invalid condition in notifier for metric " << n.second.get<std::string>("metric", ""));
                 continue;

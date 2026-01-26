@@ -10,11 +10,6 @@
 #include <unordered_map>
 #include <map>
 
-#define Y_TelegramNotifier "\033[33m[TelegramNotifier]\033[0m "
-#define R_TelegramNotifier "\033[31m[TelegramNotifier]\033[0m "
-#define G_TelegramNotifier "\033[32m[TelegramNotifier]\033[0m "
-#define W_TelegramNotifier "[TelegramNotifier] "
-
 class TelegramNotifierPlugin final : public d3156::PluginCore::IPlugin, public Metrics::Uploader
 {
     std::string configPath = "./configs/TelegramNotifier.json";

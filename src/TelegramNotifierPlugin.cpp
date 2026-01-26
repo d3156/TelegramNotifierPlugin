@@ -1,4 +1,5 @@
 #include "TelegramNotifierPlugin.hpp"
+#include <Logger/Log.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <cstddef>
@@ -94,7 +95,7 @@ namespace fs = std::filesystem;
 void TelegramNotifierPlugin::parseSettings()
 {
     if (!fs::exists(configPath)) {
-        std::cout << Y_TelegramNotifier << " Config file " << configPath << " not found. Creating default config...\n";
+        Y_LOG(1, " Config file " << configPath << " not found. Creating default config...");
         fs::create_directories(fs::path(configPath).parent_path());
         ptree pt, chats, notifiers, notifier, tags;
         pt.put("token", token);
@@ -108,7 +109,7 @@ void TelegramNotifierPlugin::parseSettings()
         notifiers.push_back(std::make_pair("", notifier));
         pt.add_child("notifiers", notifiers);
         write_json(configPath, pt);
-        std::cout << G_TelegramNotifier << " Default config created at " << configPath << "\n";
+        G_LOG(1, " Default config created at " << configPath);
         return;
     }
     try {
@@ -127,8 +128,7 @@ void TelegramNotifierPlugin::parseSettings()
             notify.condition = parse_condition(n.second.get<std::string>("condition", ""));
             std::cout << (int)notify.condition.type << " " << notify.condition.value << "\n";
             if (notify.condition.type == ConditionType::Error) {
-                std::cout << R_TelegramNotifier << " invalid condition in notifier for metric "
-                          << n.second.get<std::string>("metric", "") << std::endl;
+                R_LOG(1, " invalid condition in notifier for metric " << n.second.get<std::string>("metric", ""));
                 continue;
             }
             notify.alert_count = std::max<size_t>(1, n.second.get<size_t>("alert_count", 1));
@@ -136,7 +136,7 @@ void TelegramNotifierPlugin::parseSettings()
             notifiers[notify.metric] = std::move(notify);
         }
     } catch (const std::exception &e) {
-        std::cout << R_TelegramNotifier << " error on load config " << configPath << " " << e.what() << std::endl;
+        R_LOG(1, " error on load config " << configPath << " " << e.what());
     }
 }
 

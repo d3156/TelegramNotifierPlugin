@@ -18,6 +18,8 @@ target_include_directories(TelegramNotifierPlugin
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
+target_compile_definitions(TelegramNotifierPlugin PRIVATE $<$<COMPILE_LANGUAGE:CXX>:LOG_NAME="TelegramNotifier">)
+
 # Put resulting .so into workspace/Plugins
 set_target_properties(TelegramNotifierPlugin PROPERTIES
   LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../Plugins"

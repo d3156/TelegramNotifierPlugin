@@ -24,6 +24,9 @@ class TelegramNotifierPlugin final : public d3156::PluginCore::IPlugin, public M
         size_t value;     // для > < >= <= =
         size_t min_value; // для Range
         size_t max_value; // для Range
+
+        bool delta_mode  = false;
+        size_t lastValue = 0;
     };
 
     struct Notify {
@@ -31,15 +34,15 @@ class TelegramNotifierPlugin final : public d3156::PluginCore::IPlugin, public M
         std::string metric = "";
         size_t alert_count = 0; /// Количество повторов для срабатывания
         Condition condition;
-        std::set<std::string> tags = {}; //optional
-        
+        std::set<std::string> tags = {}; // optional
+
         /// Runtime
-        std::string alertStartMessage = "Alert! {metric}:{value} {tags}";  
+        std::string alertStartMessage   = "Alert! {metric}:{value} {tags}";
         std::string alertStoppedMessage = "Alert stopped! {metric}:{value} {tags}";
     };
 
     std::set<std::string> chatIds = {};
-    std::string token = "";
+    std::string token             = "";
     std::unordered_map<std::string, Notify> notifiers;
 
     void parseSettings();
@@ -48,7 +51,7 @@ class TelegramNotifierPlugin final : public d3156::PluginCore::IPlugin, public M
 
     std::unique_ptr<d3156::EasyHttpClient> pusher;
 
-    bool check_condition(const Condition &c, size_t metric_value);
+    bool check_condition(Condition &c, size_t metric_value);
 
     Condition parse_condition(const std::string &s);
 

@@ -3,6 +3,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <cstddef>
+#include <cstdlib>
 #include <filesystem>
 #include <vector>
 #include "Metrics.hpp"
@@ -131,7 +132,8 @@ void TelegramNotifierPlugin::parseSettings()
                 R_LOG(1, " invalid condition in notifier for metric " << n.second.get<std::string>("metric", ""));
                 continue;
             }
-            notify.alert_count = std::max<size_t>(1, n.second.get<size_t>("alert_count", 1));
+            notify.condition.delta_mode = n.second.get<bool>("delta_mode", false);
+            notify.alert_count          = std::max<size_t>(1, n.second.get<size_t>("alert_count", 1));
             for (auto &t : n.second.get_child("tags", ptree{})) notify.tags.insert(t.second.get_value<std::string>());
             notifiers[notify.metric] = std::move(notify);
         }
@@ -169,15 +171,20 @@ TelegramNotifierPlugin::Condition TelegramNotifierPlugin::parse_condition(const 
     return {.type = ConditionType::Error};
 }
 
-bool TelegramNotifierPlugin::check_condition(const Condition &c, size_t metric_value)
+bool TelegramNotifierPlugin::check_condition(Condition &c, size_t metric_value)
 {
+    auto value = metric_value;
+    if (c.delta_mode) {
+        value       = metric_value - c.lastValue;
+        c.lastValue = metric_value;
+    }
     switch (c.type) {
-        case ConditionType::Greater: return metric_value > c.value;
-        case ConditionType::Less: return metric_value < c.value;
-        case ConditionType::Equal: return metric_value == c.value;
-        case ConditionType::Range: return metric_value >= c.min_value && metric_value <= c.max_value;
-        case ConditionType::GreaterEqual: return metric_value >= c.value;
-        case ConditionType::LessEqual: return metric_value <= c.value;
+        case ConditionType::Greater: return value > c.value;
+        case ConditionType::Less: return value < c.value;
+        case ConditionType::Equal: return value == c.value;
+        case ConditionType::Range: return value >= c.min_value && value <= c.max_value;
+        case ConditionType::GreaterEqual: return value >= c.value;
+        case ConditionType::LessEqual: return value <= c.value;
         case ConditionType::Error: break;
     }
     return false;

@@ -27,6 +27,7 @@ class TelegramNotifierPlugin final : public d3156::PluginCore::IPlugin, public M
 
         bool delta_mode  = false;
         size_t lastValue = 0;
+        std::string tostring();
     };
 
     struct Notify {

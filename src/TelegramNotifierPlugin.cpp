@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <filesystem>
+#include <string>
 #include <vector>
 #include "Metrics.hpp"
 #include <boost/json/object.hpp>
@@ -63,6 +64,7 @@ void TelegramNotifierPlugin::upload(std::set<Metrics::Metric *> &statistics)
 
         if (check_condition(notifier->second.condition, metric->value_)) {
             current_count++;
+            Y_LOG(100, "condition checked: " << notifier->second.condition.tostring() << "alert count " << current_count);
             if (current_count == notifier->second.alert_count)
                 alerts.emplace_back(formatAlertMessage(notifier->second.alertStartMessage, metric));
         } else {
@@ -127,7 +129,7 @@ void TelegramNotifierPlugin::parseSettings()
 
             if (notify.metric.empty()) continue;
             notify.condition = parse_condition(n.second.get<std::string>("condition", ""));
-            LOG(5, "condition.type:" << (int)notify.condition.type << " value:" << notify.condition.value);
+            LOG(5, notify.condition.tostring());
             if (notify.condition.type == ConditionType::Error) {
                 R_LOG(1, " invalid condition in notifier for metric " << n.second.get<std::string>("metric", ""));
                 continue;
@@ -175,9 +177,13 @@ bool TelegramNotifierPlugin::check_condition(Condition &c, size_t metric_value)
 {
     auto value = metric_value;
     if (c.delta_mode) {
-        value       = metric_value - c.lastValue;
+        if (c.lastValue) value = metric_value - c.lastValue;
+        else value = 0;
+        Y_LOG(100, " metric_value:" << metric_value << " value:" << value << c.tostring());
         c.lastValue = metric_value;
-    }
+    } else
+        Y_LOG(100, " value:" << value << c.tostring());
+
     switch (c.type) {
         case ConditionType::Greater: return value > c.value;
         case ConditionType::Less: return value < c.value;
@@ -188,4 +194,11 @@ bool TelegramNotifierPlugin::check_condition(Condition &c, size_t metric_value)
         case ConditionType::Error: break;
     }
     return false;
+}
+
+std::string TelegramNotifierPlugin::Condition::tostring()
+{
+    auto res = " condition:" + text + " delta_mode: " + std::to_string(delta_mode);
+    if (lastValue) res += " lastValue:" + std::to_string(lastValue);
+    return res;
 }

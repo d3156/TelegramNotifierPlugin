@@ -25,25 +25,6 @@ void TelegramNotifierPlugin::postInit()
     pusher->setContentType("application/json");
 }
 
-std::string formatAlertMessage(const std::string &tmpl, Metrics::Metric *metric)
-{
-    std::string msg = tmpl;
-    size_t pos      = msg.find("{metric}");
-    if (pos != std::string::npos) msg.replace(pos, 8, metric->name);
-    pos = msg.find("{value}");
-    if (pos != std::string::npos) msg.replace(pos, 7, std::to_string(metric->value_));
-    pos = msg.find("{tags}");
-    if (pos != std::string::npos) {
-        std::string tags;
-        for (const auto &t : metric->tags) {
-            if (!tags.empty()) tags += ",";
-            tags += t.first + "=" + t.second;
-        }
-        msg.replace(pos, 6, tags);
-    }
-    return msg;
-}
-
 void TelegramNotifierPlugin::upload(std::set<Metrics::Metric *> &statistics)
 {
     if (!pusher) return;
@@ -64,12 +45,17 @@ void TelegramNotifierPlugin::upload(std::set<Metrics::Metric *> &statistics)
 
         if (check_condition(notifier->second.condition, metric->value_)) {
             current_count++;
-            Y_LOG(100, "condition checked: " << notifier->second.condition.tostring() << "alert count " << current_count);
-            if (current_count == notifier->second.alert_count)
-                alerts.emplace_back(formatAlertMessage(notifier->second.alertStartMessage, metric));
+
+            Y_LOG(100,
+                  "condition checked: " << notifier->second.condition.tostring() << "alert count " << current_count);
+            if (current_count == notifier->second.alert_count) {
+                alerts.emplace_back(notifier->second.formatAlertMessage(notifier->second.alertStartMessage, metric));
+                notifier->second.start_ = std::chrono::steady_clock::now();
+            }
         } else {
-            if (current_count >= notifier->second.alert_count)
-                alerts.emplace_back(formatAlertMessage(notifier->second.alertStoppedMessage, metric));
+            if (current_count >= notifier->second.alert_count) {
+                alerts.emplace_back(notifier->second.formatAlertMessage(notifier->second.alertStoppedMessage, metric));
+            }
             current_count = 0;
         }
     }
@@ -177,8 +163,10 @@ bool TelegramNotifierPlugin::check_condition(Condition &c, size_t metric_value)
 {
     auto value = metric_value;
     if (c.delta_mode) {
-        if (c.lastValue) value = metric_value - c.lastValue;
-        else value = 0;
+        if (c.lastValue)
+            value = metric_value - c.lastValue;
+        else
+            value = 0;
         Y_LOG(100, " metric_value:" << metric_value << " value:" << value << c.tostring());
         c.lastValue = metric_value;
     } else
@@ -201,4 +189,47 @@ std::string TelegramNotifierPlugin::Condition::tostring()
     auto res = " condition:" + text + " delta_mode: " + std::to_string(delta_mode);
     if (lastValue) res += " lastValue:" + std::to_string(lastValue);
     return res;
+}
+
+std::string format_duration(std::chrono::steady_clock::duration d)
+{
+    auto days = duration_cast<std::chrono::days>(d);
+    d -= days;
+    auto hours = duration_cast<std::chrono::hours>(d);
+    d -= hours;
+    auto minutes = duration_cast<std::chrono::minutes>(d);
+    d -= minutes;
+    auto seconds = duration_cast<std::chrono::seconds>(d);
+    d -= seconds;
+    auto ms = duration_cast<std::chrono::milliseconds>(d);
+    std::ostringstream oss;
+    oss << std::setfill('0');
+    if (days.count() > 0) oss << days.count() << "д ";
+    if (hours.count()) oss << hours.count() << "ч ";
+    if (minutes.count()) oss << minutes.count() << "м ";
+    if (seconds.count()) oss << seconds.count() << "с ";
+    if (ms.count()) oss << ms.count() << "мс";
+    return oss.str();
+}
+
+std::string TelegramNotifierPlugin::Notify::formatAlertMessage(const std::string &tmpl, Metrics::Metric *metric)
+{
+    std::string msg = tmpl;
+    size_t pos      = msg.find("{metric}");
+    if (pos != std::string::npos) msg.replace(pos, 8, metric->name);
+    pos = msg.find("{duraion}");
+
+    if (pos != std::string::npos) msg.replace(pos, 9, format_duration(std::chrono::steady_clock::now() - start_));
+    pos = msg.find("{value}");
+    if (pos != std::string::npos) msg.replace(pos, 7, std::to_string(metric->value_));
+    pos = msg.find("{tags}");
+    if (pos != std::string::npos) {
+        std::string tags;
+        for (const auto &t : metric->tags) {
+            if (!tags.empty()) tags += ",";
+            tags += t.first + "=" + t.second;
+        }
+        msg.replace(pos, 6, tags);
+    }
+    return msg;
 }

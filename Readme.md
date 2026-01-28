@@ -11,7 +11,7 @@ TelegramNotifierPlugin allows you to:
 - Set alert conditions (`>`, `<`, `>=`, `<=`, `=`, `[min;max]`). (Задавать условия срабатывания)
 - Filter metrics by tags (AND logic: all tags must be present).  (Фильтровать метрики по тегам (логика AND: все теги должны присутствовать))
 - Use `alert_count` to trigger alerts only after repeated occurrences.  (Использовать alert_count для определения количество повторов события для срабатывания)
-- Customize alert messages with placeholders: `{metric}`, `{value}`, `{tags}`.  
+- Customize alert messages with placeholders: `{metric}`, `{value}`, `{tags}`, `{duraion}`.  
 
 ### Configuration
 
@@ -41,7 +41,7 @@ Example:
 - `alert_count` — number of consecutive occurrences to trigger alert (количество последовательных срабатываний для триггера алерта).
 - `condition` — alert condition (условие срабатывания алерта).
 - `tags` — optional tags filter (необязательный фильтр по тегам).
-- `alertStartMessage / alertStoppedMessage` — customizable messages with placeholders (настраиваемые сообщения с плейсхолдерами `{metric}`, `{value}`, `{tags}`).
+- `alertStartMessage / alertStoppedMessage` — customizable messages with placeholders (настраиваемые сообщения с плейсхолдерами `{metric}`, `{value}`, `{tags}`, `{duraion}`).
 ## Usage
 - 1. Place `TelegramNotifier.json` in the config folder (default: `./configs/`) (поместите `TelegramNotifier.json` в папку конфигурации (по умолчанию: `./configs/`)).
 - 2. Run the plugin — it will automatically create a default config if missing (запустите плагин — он автоматически создаст файл конфигурации, если его нет).

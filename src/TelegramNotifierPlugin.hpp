@@ -40,6 +40,9 @@ class TelegramNotifierPlugin final : public d3156::PluginCore::IPlugin, public M
         /// Runtime
         std::string alertStartMessage   = "Alert! {metric}:{value} {tags}";
         std::string alertStoppedMessage = "Alert stopped! {metric}:{value} {tags}";
+
+        std::chrono::time_point<std::chrono::steady_clock> start_;
+        std::string formatAlertMessage(const std::string &tmpl, Metrics::Metric *metric);
     };
 
     std::set<std::string> chatIds = {};

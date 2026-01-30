@@ -1,24 +1,4 @@
 {
   "token": "YOUR_TELEGRAM_BOT_TOKEN",
-  "chat_ids": ["123456789", "987654321"],
-  "notifiers": [
-    {
-      "metric": "PingNodeLatency_gauge",
-      "alert_count": 3,
-      "condition": ">=500",
-      "delta_mode":false,
-      "tags": [],
-      "alertStartMessage": "⚠️ Внимание! Задержка сервера [{tags}] превысила порог: {value}мс ",
-      "alertStoppedMessage": "✅ Задержка сервера [{tags}] вернулась в норму: {value}мс"
-    },
-    {
-      "metric": "PingNodeAvailable",
-      "alert_count": 5,
-      "condition": "=0",
-      "delta_mode":false,
-      "tags": [],
-      "alertStartMessage": "⚠️ Внимание! Сервер [{tags}] недоступен!",
-      "alertStoppedMessage": "✅ Сервер снова [{tags}] доступен!"
-    }
-  ]
+  "chat_ids": ["123456789", "987654321"]
 }

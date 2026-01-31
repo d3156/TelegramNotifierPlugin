@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <string>
-#include "Metrics.hpp"
+#include <MetricsModel/Metrics>
 #include <boost/json/object.hpp>
 #include <boost/json/serialize.hpp>
 #include <PluginCore/Logger/Log.hpp>

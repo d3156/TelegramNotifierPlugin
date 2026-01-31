@@ -1,8 +1,8 @@
 #pragma once
-#include "NotifierSystem.hpp"
+#include <MetricsModel/NotifierSystem>
 #include <PluginCore/IPlugin.hpp>
-#include <MetricsModel.hpp>
-#include <EasyHttpClient.hpp>
+#include <MetricsModel/MetricsModel>
+#include <EasyHttpLib/EasyHttpClient>
 #include <string>
 class TelegramNotifierPlugin final : public d3156::PluginCore::IPlugin, public NotifierSystem::NotifierProvider
 {

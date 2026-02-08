@@ -12,9 +12,10 @@
 
 void TelegramNotifierPlugin::registerArgs(d3156::Args::Builder &bldr)
 {
-    bldr.setVersion("TelegramNotifierPlugin " + std::string(TelegramNotifierPlugin_VERSION))
-        .addOption(configPath, "TelegramNotifierPath", "path to config for TelegramNotifier.json");
+    bldr.setVersion(FULL_NAME).addOption(configPath, "TelegramNotifierPath",
+                                         "path to config for TelegramNotifier.json");
 }
+
 void TelegramNotifierPlugin::postInit()
 {
     if (token.empty()) return;
@@ -32,7 +33,7 @@ void TelegramNotifierPlugin::alert(const std::string &alert)
 
 void TelegramNotifierPlugin::registerModels(d3156::PluginCore::ModelsStorage &models)
 {
-    MetricsModel::instance() = RegisterModel("MetricsModel", new MetricsModel(), MetricsModel);
+    MetricsModel::instance() = models.registerModel<MetricsModel>();
     MetricsModel::instance()->registerAlertProvider(this);
     parseSettings();
 }

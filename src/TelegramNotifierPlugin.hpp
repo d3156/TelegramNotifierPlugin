@@ -2,7 +2,7 @@
 #include <MetricsModel/NotifierSystem>
 #include <PluginCore/IPlugin.hpp>
 #include <MetricsModel/MetricsModel>
-#include <EasyHttpLib/EasyHttpClient>
+#include <EasyHttpLib/AsyncHttpClient>
 #include <string>
 class TelegramNotifierPlugin final : public d3156::PluginCore::IPlugin, public NotifierSystem::NotifierProvider
 {
@@ -14,7 +14,7 @@ class TelegramNotifierPlugin final : public d3156::PluginCore::IPlugin, public N
 
     void alert(const std::string &) override;
 
-    std::unique_ptr<d3156::EasyHttpClient> pusher;
+    std::unique_ptr<d3156::AsyncHttpClient> pusher;
 
 public:
     void registerArgs(d3156::Args::Builder &bldr) override;

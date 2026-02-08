@@ -1,13 +1,7 @@
 #include "TelegramNotifierPlugin.hpp"
-#include <Logger/Log.hpp>
-#include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
-#include <cstddef>
-#include <cstdlib>
 #include <filesystem>
-#include <string>
 #include <MetricsModel/Metrics>
-#include <boost/json/object.hpp>
 #include <boost/json/serialize.hpp>
 #include <PluginCore/Logger/Log.hpp>
 
@@ -20,7 +14,7 @@ void TelegramNotifierPlugin::registerArgs(d3156::Args::Builder &bldr)
 void TelegramNotifierPlugin::postInit()
 {
     if (token.empty()) return;
-    pusher = std::make_unique<d3156::EasyHttpClient>(MetricsModel::instance()->getIO(), "https://api.telegram.org");
+    pusher = std::make_unique<d3156::AsyncHttpClient>(MetricsModel::instance()->getIO(), "https://api.telegram.org");
     pusher->setBasePath("/bot" + token + "/sendMessage");
     pusher->setContentType("application/json");
 }
@@ -28,7 +22,8 @@ void TelegramNotifierPlugin::alert(const std::string &alert)
 {
     for (auto &chat : chatIds) {
         boost::json::object message = {{"chat_id", chat}, {"text", alert}, {"parse_mode", "HTML"}};
-        pusher->post("", boost::json::serialize(message));
+        net::co_spawn(MetricsModel::instance()->getIO(), pusher->postAsync("", boost::json::serialize(message)),
+                      net::detached);
     }
 }
 
@@ -63,9 +58,7 @@ void TelegramNotifierPlugin::parseSettings()
         ptree pt;
         read_json(configPath, pt);
         token = pt.get<std::string>("token", "");
-
         for (auto &v : pt.get_child("chat_ids", ptree{})) chatIds.insert(v.second.get_value<std::string>());
-
     } catch (const std::exception &e) {
         R_LOG(1, " error on load config " << configPath << " " << e.what());
     }

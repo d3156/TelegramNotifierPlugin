@@ -1,6 +1,6 @@
 #pragma once
 #include <MetricsModel/NotifierSystem>
-#include <PluginCore/IPlugin.hpp>
+#include <PluginCore/IPlugin>
 #include <MetricsModel/MetricsModel>
 #include <EasyHttpLib/AsyncHttpClient>
 #include <string>

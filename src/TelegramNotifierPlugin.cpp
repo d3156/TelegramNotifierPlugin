@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <MetricsModel/Metrics>
 #include <boost/json/serialize.hpp>
-#include <PluginCore/Logger/Log.hpp>
+#include <PluginCore/Logger/Log>
 
 void TelegramNotifierPlugin::registerArgs(d3156::Args::Builder &bldr)
 {

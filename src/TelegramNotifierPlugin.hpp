@@ -4,13 +4,15 @@
 #include <MetricsModel/MetricsModel>
 #include <EasyHttpLib/AsyncHttpClient>
 #include <string>
+#include <BaseConfig>
+
 class TelegramNotifierPlugin final : public d3156::PluginCore::IPlugin, public NotifierSystem::NotifierProvider
 {
-    std::string configPath        = "./configs/TelegramNotifier.json";
-    std::set<std::string> chatIds = {};
-    std::string token             = "";
-
-    void parseSettings();
+    struct Config : public d3156::Config {
+        Config() : d3156::Config("") {}
+        d3156::ConfigArray<std::string> chatIds = {"chatIds", this};
+        CONFIG_STRING(token, "");
+    } conf;
 
     void alert(const std::string &) override;
 

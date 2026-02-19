@@ -225,6 +225,7 @@ release:gitlab_release:
   rules:
     - if: $CI_COMMIT_TAG
   script:
+    - test -n "$GLAB_TOKEN" || (echo "GLAB_TOKEN is empty (check GitLab CI/CD variable scope/protected tags)" && exit 1)
     - tree .
     - echo "Release assets ready $(ls release/ | wc -l) files"
     - glab auth login --hostname gitlab.bubki.zip --token "$GLAB_TOKEN"
@@ -277,7 +278,7 @@ release:github_release:
     - ls -la release/
     - echo "Release assets ready $(ls release/ | wc -l) files"
     # github
-    - export GH_TOKEN="$GH_TOKEN"
+    - test -n "$GH_TOKEN" || (echo "GH_TOKEN is empty (check GitLab CI/CD variable scope/protected tags)" && exit 1)
     - GH_REPO="$GITHUB_OWNER/$CI_PROJECT_NAME"
     - gh release create "$CI_COMMIT_TAG" release/* --repo "$GH_REPO" --title "Multi-arch Release $CI_COMMIT_TAG" --notes "New Release"
   artifacts:

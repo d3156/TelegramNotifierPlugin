@@ -19,7 +19,7 @@ void TelegramNotifierPlugin::postInit()
 }
 void TelegramNotifierPlugin::alert(const std::string &alert)
 {
-    for (auto &chat : conf.chatIds.items) {
+    for (auto &chat : conf.chat_id.items) {
         boost::json::object message = {{"chat_id", chat}, {"text", alert}, {"parse_mode", "HTML"}};
         net::co_spawn(MetricsModel::instance()->getIO(), pusher->postAsync("", boost::json::serialize(message)),
                       net::detached);

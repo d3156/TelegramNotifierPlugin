@@ -10,7 +10,7 @@ class TelegramNotifierPlugin final : public d3156::PluginCore::IPlugin, public N
 {
     struct Config : public d3156::Config {
         Config() : d3156::Config("") {}
-        d3156::ConfigArray<std::string> chatIds = {"chatIds", this};
+        CONFIG_ARRAY(chat_id, std::string);
         CONFIG_STRING(token, "");
     } conf;
 

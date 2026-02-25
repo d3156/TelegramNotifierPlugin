@@ -4,11 +4,9 @@
 #include <boost/json/serialize.hpp>
 #include <PluginCore/Logger/Log>
 #include <ConfiguratorModel>
+#include <chrono>
 
-void TelegramNotifierPlugin::registerArgs(d3156::Args::Builder &bldr)
-{
-    bldr.setVersion(FULL_NAME);
-}
+void TelegramNotifierPlugin::registerArgs(d3156::Args::Builder &bldr) { bldr.setVersion(FULL_NAME); }
 
 void TelegramNotifierPlugin::postInit()
 {
@@ -21,7 +19,8 @@ void TelegramNotifierPlugin::alert(const std::string &alert)
 {
     for (auto &chat : conf.chat_id.items) {
         boost::json::object message = {{"chat_id", *chat}, {"text", alert}, {"parse_mode", "HTML"}};
-        net::co_spawn(MetricsModel::instance()->getIO(), pusher->postAsync("", boost::json::serialize(message)),
+        net::co_spawn(MetricsModel::instance()->getIO(),
+                      pusher->postAsync("", boost::json::serialize(message), 5, std::chrono::seconds(2)),
                       net::detached);
     }
 }

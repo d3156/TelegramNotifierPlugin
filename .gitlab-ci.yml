@@ -11,8 +11,9 @@ variables:
 .build_template: &build_template
   stage: build
   script:
-    - mkdir -p Workspace/PluginsSource/$CI_PROJECT_NAME Workspace/Plugins $CI_PROJECT_DIR/$RELEASE_DIR
+    - mkdir -p Workspace/PluginsSource/$CI_PROJECT_NAME Workspace/Plugins 
     - mv * Workspace/PluginsSource/$CI_PROJECT_NAME/ || true
+    - mkdir -p $CI_PROJECT_DIR/$RELEASE_DIR
     - cd Workspace
     - git clone https://gitlab.bubki.zip/d3156/PluginCore.git
     - ln -s ./PluginCore/tools tools

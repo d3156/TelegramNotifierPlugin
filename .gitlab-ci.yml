@@ -1,4 +1,4 @@
 include:
   - project: 'd3156/DockerCi'
-    ref: main
+    ref: master
     file: 'build-plugin.yml'

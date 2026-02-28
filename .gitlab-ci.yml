@@ -11,7 +11,7 @@ variables:
 .build_template: &build_template
   stage: build
   script:
-    - mkdir -p Workspace/PluginsSource/$CI_PROJECT_NAME Workspace/Plugins 
+    - mkdir -p Workspace/PluginsSource/$CI_PROJECT_NAME Workspace/Plugins
     - mv * Workspace/PluginsSource/$CI_PROJECT_NAME/ || true
     - mkdir -p $CI_PROJECT_DIR/$RELEASE_DIR
     - cd Workspace
@@ -64,21 +64,15 @@ variables:
   before_script:
     - export PATH="/usr/lib/ccache:$PATH"
     - ccache -M 5G
-  cache:
-    key: global-build-cache
-    paths:
-      - .ccache/
-      - build_amd64/
-      - build_arm64/
-      - build_armhf/
-      - install_amd64/
-      - install_arm64/
-      - install_armhf/
+cache:
+  key: "ccache-$ARCH"
+  paths:
+    - .ccache/
+
   artifacts:
     paths:
       - $RELEASE_DIR/*
     expire_in: 1 week
-
 
 # --- AMD64 ---
 build:amd64:
@@ -87,7 +81,6 @@ build:amd64:
   variables:
     ARCH: amd64
     CMAKE_TOOLCHAIN_ARGS: ""
-  
 
 # --- ARM64 ---
 build:arm64:
@@ -100,7 +93,6 @@ build:arm64:
       -DCMAKE_SYSTEM_PROCESSOR=aarch64
       -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc-13
       -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++-13
-
 
 # --- ARMhf / ARMv7 ---
 build:armhf:
@@ -138,7 +130,6 @@ release:gitlab_release:
     paths:
       - release/*
     expire_in: never
-
 
 # --- GitHub Release ---
 release:github_release:

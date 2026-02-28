@@ -6,7 +6,7 @@ variables:
   BUILD_TYPE: Release
   RELEASE_DIR: release
   CCACHE_DIR: $CI_PROJECT_DIR/.ccache
-  REGISTRY_IMAGE: "registry.gitlab.bubki.zip/d3156/builder-images"
+  REGISTRY_IMAGE: "gitlab.bubki.zip:5050/d3156/dockerci"
 
 .build_template: &build_template
   stage: build
